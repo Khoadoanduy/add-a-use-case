@@ -41,8 +41,8 @@ Implement the dedicated action, confirmation UI, authorization, immediate active
 
 ### How it was verified
 
-- **Verified:** `bash backend/mvnw -q -Dtest=StudentServiceTest,EvaluationServiceTest test` passed (main, E1, E4, E5, and report behavior); the intentional report mutation made `EvaluationServiceTest.testGenerateWeeklyPeerEvaluationReportForSection` fail, then the line was restored.
-- **Not verified:** E2 unauthorized instructor, E3 confirmation cancellation, and E6 already-issued JWT lack dedicated automated tests; `bash backend/mvnw -q test` could not run integration tests because Docker is unavailable (`/var/run/docker.sock` missing); frontend type-check is blocked by pre-existing errors in unrelated files, and no running-app check or screenshot was captured.
+- **Verified:** `cd backend && bash mvnw -q -Dtest=StudentServiceTest,EvaluationServiceTest test` passed (main, E1, E4, E5, and report behavior); the intentional report mutation made `EvaluationServiceTest.testGenerateWeeklyPeerEvaluationReportForSection` fail, then the line was restored.
+- **Not verified:** E2 unauthorized instructor, E3 confirmation cancellation, and E6 already-issued JWT lack dedicated automated tests; `cd backend && bash mvnw -q test` could not run integration tests because Docker is unavailable (`/var/run/docker.sock` missing); frontend type-check is blocked by pre-existing errors in unrelated files, and no running-app check or screenshot was captured.
 
 ### Reviewer focus
 
