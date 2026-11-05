@@ -4,6 +4,7 @@ import team.projectpulse.section.Section;
 import team.projectpulse.section.SectionRepository;
 import team.projectpulse.system.UserUtils;
 import team.projectpulse.system.exception.ObjectNotFoundException;
+import team.projectpulse.system.exception.PeerEvaluationIllegalArgumentException;
 import team.projectpulse.user.userinvitation.UserInvitationService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -129,6 +130,21 @@ public class StudentService {
         this.studentRepository.findById(studentId)
                 .orElseThrow(() -> new ObjectNotFoundException("student", studentId));
         this.studentRepository.deleteById(studentId);
+    }
+
+    public Student deactivateStudent(Integer studentId) {
+        Student student = this.studentRepository.findById(studentId)
+                .orElseThrow(() -> new ObjectNotFoundException("student", studentId));
+
+        if (!student.isEnabled()) {
+            throw new PeerEvaluationIllegalArgumentException("The student is already deactivated.");
+        }
+
+        if (student.getTeam() != null) {
+            student.getTeam().removeStudent(student);
+        }
+        student.setEnabled(false);
+        return this.studentRepository.save(student);
     }
 
 }

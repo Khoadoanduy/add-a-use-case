@@ -334,6 +334,19 @@ class EvaluationServiceTest {
     }
 
     @Test
+    void testAddPeerEvaluationRejectsDeactivatedEvaluatee() {
+        eric.setEnabled(false);
+        PeerEvaluation newPeerEvaluation = new PeerEvaluation("2023-W31", john, eric, List.of(), "public comment", "private comment");
+
+        Throwable throwable = catchThrowable(() -> this.evaluationService.addPeerEvaluation(newPeerEvaluation));
+
+        assertThat(throwable)
+                .isInstanceOf(PeerEvaluationIllegalArgumentException.class)
+                .hasMessage("Cannot evaluate a deactivated student.");
+        verify(this.evaluationRepository, times(0)).save(any(PeerEvaluation.class));
+    }
+
+    @Test
     void testAddPeerEvaluationNotForPreviousWeek() {
         // Given
         LocalDate fixedDate = LocalDate.of(2023, 8, 8); // 2023-W32

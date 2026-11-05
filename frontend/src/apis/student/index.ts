@@ -14,7 +14,8 @@ import type {
 
 enum API {
   STUDENTS_ENDPOINT = '/students',
-  SEARCH_STUDENTS_ENDPOINT = '/students/search'
+  SEARCH_STUDENTS_ENDPOINT = '/students/search',
+  DEACTIVATE_STUDENT_ENDPOINT = '/students'
 }
 
 export const searchStudents = (params: PaginationParams, searchCriteria: StudentSearchCriteria) =>
@@ -39,3 +40,8 @@ export const updateStudent = (updatedStudent: Student) =>
 
 export const deleteStudent = (id: number) =>
   request.delete<any, DeleteStudentResponse>(`${API.STUDENTS_ENDPOINT}/${id}`)
+
+export const deactivateStudent = (id: number) =>
+  request.post<any, UpdateStudentResponse>(
+    `${API.DEACTIVATE_STUDENT_ENDPOINT}/${id}/deactivate`
+  )
