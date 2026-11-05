@@ -4,9 +4,11 @@ import org.junit.jupiter.api.AfterEach;
 import team.projectpulse.instructor.Instructor;
 import team.projectpulse.section.Section;
 import team.projectpulse.section.SectionRepository;
+import team.projectpulse.team.Team;
 import team.projectpulse.system.UserUtils;
 import team.projectpulse.user.MyUserPrincipal;
 import team.projectpulse.user.userinvitation.UserInvitationService;
+import team.projectpulse.system.exception.PeerEvaluationIllegalArgumentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -188,6 +191,34 @@ class StudentServiceTest {
 
         // Then
         verify(this.studentRepository, times(1)).deleteById(1);
+    }
+
+    @Test
+    void testDeactivateStudentRemovesTeamAndPreservesStudent() {
+        Student student = this.students.get(0);
+        Team team = new Team("Team 1", "description", "https://team.example");
+        team.addStudent(student);
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(student));
+        given(this.studentRepository.save(student)).willReturn(student);
+
+        Student result = this.studentService.deactivateStudent(1);
+
+        assertThat(result.isEnabled()).isFalse();
+        assertThat(result.getTeam()).isNull();
+        assertThat(team.getStudents()).doesNotContain(student);
+        verify(this.studentRepository).save(student);
+    }
+
+    @Test
+    void testDeactivateStudentRejectsAlreadyInactiveStudent() {
+        Student student = this.students.get(0);
+        student.setEnabled(false);
+        given(this.studentRepository.findById(1)).willReturn(Optional.of(student));
+
+        assertThatThrownBy(() -> this.studentService.deactivateStudent(1))
+                .isInstanceOf(PeerEvaluationIllegalArgumentException.class)
+                .hasMessage("The student is already deactivated.");
+        verify(this.studentRepository, never()).save(any(Student.class));
     }
 
 }
